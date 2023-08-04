@@ -1,52 +1,62 @@
-interface FarmInterface {
-    fun init(penList : MutableList<Pen>)
-    fun getPenList() : MutableList<Pen>
-    fun addPen(pen: Pen) : MutableList<Pen>
-    fun removePen(pen: Pen) : MutableList<Pen>
-}
+object Farm : ItemContainer <Pen?> {
 
-object Farm : FarmInterface {
-
-    private var penList : MutableList<Pen> = mutableListOf()
+    private var penList : MutableList<Pen?> = mutableListOf()
     private var initState = false
+    private var type: String? = null
+
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.FUNCTION)
+    private annotation class InitCheck
 
     init {
         println("Farm object was created, but you must initialize farm to interact with it")
     }
 
-    private fun checkIsInitialized() : Boolean {
-        if (!this.initState) {
-            throw Exception("You must initialize farm to interact with it. Use Farm.init() to do that")
-        } else return true
-    }
+    fun initFarm(vararg pen: Pen?) {
 
-    override fun init(penList : MutableList<Pen>) {
-
-        if (penList.size <= 1) {
+        if (mutableListOf(*pen).size <= 1) {
             throw Exception("Pen list length must be at least 2 for farm initializing")
         }
 
-        if (this.initState) {
-            throw Exception("Farm was already initialized")
+        penList = mutableListOf(*pen)
+        initState = true
+        type = "Farm"
+    }
+
+
+    override fun getType(): String? {
+        initStateCheck { }
+        return type
+    }
+
+    @InitCheck
+    override fun getItems(): MutableList<Pen?> {
+        initStateCheck { }
+        return penList
+    }
+
+    @InitCheck
+    override fun removeItem(item: Pen?): MutableList<Pen?> {
+        initStateCheck {
+            penList.remove(item!!)
         }
-
-        this.penList = penList
-        this.initState = true
+        return this.getItems()
     }
 
-    override fun getPenList(): MutableList<Pen> {
-        this.checkIsInitialized()
-        return this.penList
+    @InitCheck
+    override fun addItem(item: Pen?): MutableList<Pen?> {
+        initStateCheck {
+            penList.add(item!!)
+        }
+        return this.getItems()
+
     }
 
-    override fun addPen(pen: Pen): MutableList<Pen> {
-        this.checkIsInitialized()
-        this.penList.add(pen)
-        return this.getPenList()
-    }
-
-    override fun removePen(pen: Pen): MutableList<Pen> {
-        this.checkIsInitialized()
-        return this.getPenList()
+    private fun initStateCheck(action: () -> Unit) {
+        if (initState) {
+            action()
+        } else {
+            throw UninitializedPropertyAccessException("Farm is not initialized!")
+        }
     }
 }

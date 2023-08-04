@@ -18,13 +18,13 @@ fun main() {
     val catPen = Pen("Cat", AnimalList(animalNumberTwo, animalNumberThree))
 
     println(catPen.getType())
-    println(catPen.getAnimalsInside())
+    println(catPen.getItems())
 
     val dogPen = Pen("Dog", AnimalList(animalNumberOne, Dog("Vasya")))
 
     val myFarm = Farm
 
-    myFarm.init(mutableListOf(catPen, dogPen))
-    println(myFarm.getPenList()[1].getAnimalsInside()[1].getName())
+    myFarm.initFarm(catPen, dogPen)
+    println(myFarm.getItems()[1]?.getItems().toString())
 
 }

@@ -20,4 +20,16 @@ class AnimalList(vararg animals: Animal) : AbstractMutableList<Animal>() {
     override fun get(index: Int): Animal {
         return internalList[index]
     }
+
+    override fun toString(): String {
+        var resultString = ""
+        val lastIndex = this.internalList.size - 1
+        this.internalList.forEachIndexed { index, animal ->
+            resultString += animal.getName()
+            if (index != lastIndex) {
+                resultString += ", "
+            }
+        }
+        return resultString
+    }
 }
